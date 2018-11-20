@@ -1,0 +1,36 @@
+{
+  "name": "react-infinite-scroll",
+  "version": "1.0.0",
+  "description": "Another react infinite scroll package",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "eslint ./src/index.js",
+    "build": "babel src -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexcambose/react-infinite-scroll.git"
+  },
+  "keywords": [
+    "react",
+    "infinite",
+    "scroll",
+    "infinite-scroll"
+  ],
+  "author": "Alexandru Cambose",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alexcambose/react-infinite-scroll/issues"
+  },
+  "homepage": "https://github.com/alexcambose/react-infinite-scroll#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "eslint": "^5.9.0",
+    "eslint-plugin-react": "^7.11.1"
+  },
+  "dependencies": {
+    "react": "^16.6.3"
+  }
+}
