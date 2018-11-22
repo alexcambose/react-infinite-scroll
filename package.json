@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint ./src/index.js",
     "build": "babel src -d dist",
-    "watch": "babel src -d dist --watch"
+    "watch": "babel src -d dist --watch",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -30,13 +31,19 @@
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.1.6",
     "@babel/preset-react": "^7.0.0",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.4.2",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.7.0",
     "eslint": "^5.9.0",
-    "eslint-plugin-react": "^7.11.1"
+    "eslint-plugin-react": "^7.11.1",
+    "jest": "^23.6.0"
   },
   "dependencies": {
-    "proptypes": "^1.1.0",
+    "eslint-plugin-jest": "^22.0.0",
     "lodash.throttle": "^4.1.1",
+    "proptypes": "^1.1.0",
     "react": "^16.6.3"
   }
 }
