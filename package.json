@@ -9,6 +9,11 @@
     "watch": "babel src -d dist --watch",
     "test": "jest"
   },
+  "jest": {
+    "setupFiles": [
+      "./test/setup.js"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alexcambose/react-infinite-scroll.git"
