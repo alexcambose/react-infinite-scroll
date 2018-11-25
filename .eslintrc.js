@@ -3,15 +3,15 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    'jest/globals': true,
+    'jest/globals': true
   },
   extends: ['eslint:recommended', 'plugin:react/recommended'],
   parserOptions: {
     ecmaFeatures: {
-      jsx: true,
+      jsx: true
     },
     ecmaVersion: 2018,
-    sourceType: 'module',
+    sourceType: 'module'
   },
   plugins: ['react', 'jest'],
   rules: {
@@ -19,5 +19,7 @@ module.exports = {
     'linebreak-style': ['error', 'unix'],
     quotes: ['error', 'single'],
     semi: ['error', 'always'],
-  },
+    'react/destructuring-assignment': 'off'
+    'react/sort-comp': 'off'
+  }
 };

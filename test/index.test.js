@@ -1,13 +1,35 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import InfiniteScroll from '../src/index';
+import { JSDOM } from 'jsdom';
+
+const { window } = new JSDOM(`<!DOCTYPE html><div id="el">content</div>`);
+const el = window.document.getElementById('el');
+
+const loadMore = () => {};
 
 describe('main module', () => {
   let component;
   beforeEach(() => {
-    component = shallow(<InfiniteScroll />);
+    component = mount(<InfiniteScroll loadMore={loadMore} />);
   });
-  it('props', () => {
-    expect(true).toBeTruthy();
+  it('default scrollable element should be `window`', () => {
+    expect(JSON.stringify(component.props('scrollableElement').alert)).toEqual(
+      JSON.stringify(window.alert)
+    );
+  });
+  it('contains a div element', () => {
+    expect(component.contains(<div />)).toBeTruthy();
+  });
+  it('default scrollable element should be `window`', () => {
+    expect(JSON.stringify(component.props('scrollableElement').alert)).toEqual(
+      JSON.stringify(window.alert)
+    );
+  });
+  it('adapts to a custom scollElement', () => {
+    const newComponent = mount(
+      <InfiniteScroll loadMore={loadMore} scrollableElement={el} />
+    );
+    expect(newComponent.instance().getElementHeight()).toEqual(0);
   });
 });
