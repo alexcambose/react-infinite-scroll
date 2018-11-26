@@ -14,13 +14,16 @@ const propTypes = {
     if (!hasAuto && (!props[propName] || typeof props[propName] !== 'function'))
       return new Error(`${componentName} must have a 'loadMore' function!`);
   },
+  hasMore: (props, propName, componentName) => {
+    if (!props['auto'] && typeof props[propName] !== 'boolean')
+      throw new Error(`${componentName}: hasMore must be set!`);
+  },
   children: PropTypes.node,
   initialLoad: PropTypes.bool,
   offset: PropTypes.number,
   scrollableElement: PropTypes.any,
   throttle: PropTypes.number,
   getScrollTop: PropTypes.func,
-  hasMore: PropTypes.bool,
   style: PropTypes.object,
   isLoading: PropTypes.bool,
   loading: PropTypes.node,
@@ -29,6 +32,7 @@ const propTypes = {
     loadMore: PropTypes.func.isRequired,
     perLoad: PropTypes.number.isRequired, // alias for limit
     onLoadMore: PropTypes.func.isRequired,
+    useCount: PropTypes.bool,
     count: PropTypes.func,
     onCount: PropTypes.func,
     onCountError: PropTypes.func,
@@ -41,7 +45,6 @@ const defaultProps = {
   offset: 300,
   scrollableElement: window,
   throttle: 200,
-  hasMore: true,
   initialLoad: true,
   loading: 'Loading...',
   noMore: 'No more items.',
@@ -65,7 +68,7 @@ class ReactInfiniteScroll extends Component {
   };
   innerContainer = React.createRef();
   componentDidUpdate(prevProps) {
-    // if the current loadgin prop is false and previous is true, check again
+    // if the current loading prop is false and previous is true, check again
     // to see if the content is still before the end, maybe it wasn't big enough to fill the user's screen
     if (this.props.isLoading === false && prevProps.isLoading === true) {
       this.setState({ triggeredLoad: false }, this.scrollCheck);
@@ -73,12 +76,24 @@ class ReactInfiniteScroll extends Component {
   }
   componentDidMount = () => {
     const { scrollableElement, initialLoad, auto } = this.props;
+    if (!scrollableElement) {
+      throw new Error(
+        `'scrollableElement' is not defined or the current value is not a dom element!`
+      );
+    }
+    if (scrollableElement && scrollableElement.hasOwnProperty('current')) {
+      throw new Error(
+        `React ref detected! Please set 'scrollableElement' to it's 'current' value.`
+      );
+    }
+
     scrollableElement.addEventListener('scroll', this.handleScroll);
     // triggerLoad should be called at mounting only when using standard load more functionality,
     // if auto, triggerLoad will be called after counting elements
     if (initialLoad && !isotrue(auto)) this.triggerLoad();
-    // if auto mode is set to true we need at the first thet total number of items
-    if (isotrue(auto)) {
+
+    // if in auto mode te useCount is set to true we need at the first the total number of items
+    if (isotrue(auto) && auto.useCount) {
       this.setState({
         auto: { ...this.state.auto, loading: true },
       });
@@ -96,6 +111,8 @@ class ReactInfiniteScroll extends Component {
               );
             this.setState(
               {
+                // set the totalCount state
+                // also set loading to false after counting is done
                 auto: { ...this.state.auto, totalCount: res, loading: false },
               },
               this.triggerLoad
@@ -123,7 +140,9 @@ class ReactInfiniteScroll extends Component {
               {
                 auto: {
                   ...this.state.auto,
+                  // we hope it's a variable that has the lenght property, ideally an array
                   totalCount: res.length,
+                  // also set loading to false after counting is done
                   loading: false,
                 },
               },
@@ -150,12 +169,16 @@ class ReactInfiniteScroll extends Component {
     // if the specified element is not window, use a different property
     if (scrollableElement !== window) return scrollableElement.scrollTop;
     // going to defaults, the window
-    return window.scrollY;
+    return scrollableElement.scrollY;
   };
 
   getElementHeight = () => {
-    const { scrollableElement } = this.props;
+    const { scrollableElement, getElementHeight } = this.props;
+    // if there is a user defined function to handle this use it first
+    if (getElementHeight) getElementHeight(scrollableElement);
+    // if the specified element is not window, use a different property
     if (scrollableElement === window) return scrollableElement.innerHeight;
+    // going to defaults, the window
     else return scrollableElement.offsetHeight;
   };
 
@@ -172,28 +195,37 @@ class ReactInfiniteScroll extends Component {
       const { loadMore, perLoad, onLoadMore, onCountError } = autoProps;
       const { skip } = autoState;
 
+      // mark triggerLoad to true so that no requests will be made before this one
       this.setState({
         triggeredLoad: true,
         auto: { ...autoState, loading: true },
       });
+      // call the required loadMore param
       const loadMoreResult = loadMore(skip, perLoad);
+      // loadMore *MUST* return a promise (or be an async function)
       if (!loadMoreResult.then)
         throw new Error(
           `'loadMore' function must return a promise (or be an async function)`
         );
       loadMoreResult
         .then(res => {
+          // call optional callback
           if (onLoadMore) onLoadMore(res);
+
           console.log(skip, perLoad, autoState.totalCount, res);
+
           this.setState(
             {
               ...this.state,
-              triggeredLoad: false,
+              triggeredLoad: false, // can make new requests if needed
               auto: {
                 ...autoState,
-                skip: skip + perLoad,
-                loading: false,
-                hasMore: skip + perLoad < autoState.totalCount,
+                skip: skip + perLoad, // increment skip
+                loading: false, // done loading
+                // hasMore has two modes, if we use the count method we need to
+                hasMore: autoProps.useCount
+                  ? skip + perLoad < autoState.totalCount
+                  : res.length === autoProps.perLoad,
               },
             },
             this.scrollCheck
@@ -207,28 +239,46 @@ class ReactInfiniteScroll extends Component {
           });
         });
     } else {
+      // normla mode
       // check not to (over)load
       if (triggeredLoad || !hasMore) return;
-
+      // call required loadMore param
       loadMore(() => {
-        this.setState({ triggeredLoad: false });
-        this.scrollCheck();
+        // optional callback that can be called by the user after loading is done
+        this.setState({ triggeredLoad: false }, this.scrollCheck);
       });
+      // increment page and block new requests, we don't need to handle any sort of loading, it's user's business to do this
       this.setState({ triggeredLoad: true, page: page + 1 });
     }
   };
   handleScroll = throttle(() => this.scrollCheck(), this.props.throttle);
   scrollCheck = () => {
-    const { offset } = this.props;
+    const { offset, isLoading } = this.props;
+    const { auto } = this.state;
     const windowBottom = this.getElementHeight() + this.getScrollTop();
     const infScrollBottom =
       this.innerContainer.current.offsetTop +
       this.innerContainer.current.offsetHeight;
+    console.log(
+      this.getElementHeight(),
+      this.getScrollTop(),
+      this.innerContainer.current.offsetTop,
+      this.innerContainer.current.offsetHeight,
+      '.',
+      windowBottom,
+      infScrollBottom
+    );
 
     if (windowBottom >= infScrollBottom - offset) {
+      // if it's over this breakpoint trigger a load
       this.triggerLoad();
     } else if (windowBottom < infScrollBottom) {
-      this.setState({ triggeredLoad: false });
+      // if the user is above the breakpoint set triggeredLoad to false only if the loading is done or it's not set
+      if (
+        (isLoading === false && auto.loading === false) ||
+        typeof isLoading !== 'boolean'
+      )
+        this.setState({ triggeredLoad: false });
     }
   };
   render() {
