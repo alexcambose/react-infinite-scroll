@@ -92,13 +92,15 @@ class ReactInfiniteScroll extends Component {
     // if auto, triggerLoad will be called after counting elements
     if (initialLoad && !isotrue(auto)) this.triggerLoad();
 
-    // if in auto mode te useCount is set to true we need at the first the total number of items
+    // if in auto mode but useCount is set to treu wich means that we need to create a first request that fetches initial data
+    if (isotrue(auto) && !auto.useCount) this.triggerLoad();
+    // if in auto mode and useCount is set to true we need at the first the total number of items
     if (isotrue(auto) && auto.useCount) {
       this.setState({
         auto: { ...this.state.auto, loading: true },
       });
-      // if count is defined use it
       if (auto.count) {
+        // if count is defined use it
         auto
           .count()
           .then(res => {
@@ -212,15 +214,13 @@ class ReactInfiniteScroll extends Component {
           // call optional callback
           if (onLoadMore) onLoadMore(res);
 
-          console.log(skip, perLoad, autoState.totalCount, res);
-
           this.setState(
             {
               ...this.state,
               triggeredLoad: false, // can make new requests if needed
               auto: {
                 ...autoState,
-                skip: skip + perLoad, // increment skip
+                skip: skip + perLoad, // increment skip with the amount of items should be loaded
                 loading: false, // done loading
                 // hasMore has two modes, if we use the count method we need to
                 hasMore: autoProps.useCount
@@ -259,15 +259,6 @@ class ReactInfiniteScroll extends Component {
     const infScrollBottom =
       this.innerContainer.current.offsetTop +
       this.innerContainer.current.offsetHeight;
-    console.log(
-      this.getElementHeight(),
-      this.getScrollTop(),
-      this.innerContainer.current.offsetTop,
-      this.innerContainer.current.offsetHeight,
-      '.',
-      windowBottom,
-      infScrollBottom
-    );
 
     if (windowBottom >= infScrollBottom - offset) {
       // if it's over this breakpoint trigger a load
@@ -283,12 +274,15 @@ class ReactInfiniteScroll extends Component {
   };
   render() {
     const { children, style, isLoading, loading, hasMore, noMore } = this.props;
+    const autoProp = this.props.auto;
     const { auto } = this.state;
     return (
       <div style={style} ref={this.innerContainer}>
         {children}
         {(isLoading || auto.loading) && loading}
-        {(!hasMore || !auto.hasMore) && noMore}
+        {((!hasMore && !isotrue(autoProp)) ||
+          (!auto.hasMore && isotrue(autoProp))) &&
+          noMore}
       </div>
     );
   }
