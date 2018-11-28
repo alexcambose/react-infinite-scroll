@@ -1,4 +1,4 @@
-import { isotrue } from './utils';
+import { isotrue } from '../src/utils';
 
 describe('utils', () => {
   it('isotrue', () => {

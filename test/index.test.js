@@ -11,7 +11,7 @@ const loadMore = () => {};
 describe('main module', () => {
   let component;
   beforeEach(() => {
-    component = mount(<InfiniteScroll loadMore={loadMore} />);
+    component = mount(<InfiniteScroll loadMore={loadMore} hasMore={true} />);
   });
   it('default scrollable element should be `window`', () => {
     expect(JSON.stringify(component.props('scrollableElement').alert)).toEqual(
@@ -28,7 +28,11 @@ describe('main module', () => {
   });
   it('adapts to a custom scollElement', () => {
     const newComponent = mount(
-      <InfiniteScroll loadMore={loadMore} scrollableElement={el} />
+      <InfiniteScroll
+        loadMore={loadMore}
+        scrollableElement={el}
+        hasMore={true}
+      />
     );
     expect(newComponent.instance().getElementHeight()).toEqual(0);
   });

@@ -1,1 +1,1 @@
-export const isotrue = object => object && !!Object.keys(object);
+export const isotrue = object => object && !!Object.keys(object).length;
