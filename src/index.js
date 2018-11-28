@@ -44,7 +44,7 @@ const propTypes = {
 const defaultProps = {
   offset: 300,
   scrollableElement: window,
-  throttle: 200,
+  throttle: 240,
   initialLoad: true,
   loading: 'Loading...',
   noMore: 'No more items.',
@@ -73,6 +73,8 @@ class ReactInfiniteScroll extends Component {
     if (this.props.isLoading === false && prevProps.isLoading === true) {
       this.setState({ triggeredLoad: false }, this.scrollCheck);
     }
+    // if (this.props.children.length !== prevProps.children.length)
+    //   this.setState({ triggeredLoad: false }, this.scrollCheck);
   }
   componentDidMount = () => {
     const { scrollableElement, initialLoad, auto } = this.props;
@@ -211,8 +213,8 @@ class ReactInfiniteScroll extends Component {
         );
       loadMoreResult
         .then(res => {
-          // call optional callback
-          if (onLoadMore) onLoadMore(res);
+          // callback
+          onLoadMore(res);
 
           this.setState(
             {
