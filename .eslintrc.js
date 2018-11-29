@@ -2,24 +2,14 @@ module.exports = {
   parser: 'babel-eslint',
   env: {
     browser: true,
-    es6: true,
-    'jest/globals': true
+    node: true,
   },
-  extends: ['eslint:recommended', 'plugin:react/recommended'],
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true
-    },
-    ecmaVersion: 2018,
-    sourceType: 'module'
-  },
-  plugins: ['react', 'jest'],
+  extends: 'airbnb',
   rules: {
-    // indent: ['error', 2],
-    'linebreak-style': ['error', 'unix'],
-    quotes: ['error', 'single'],
-    semi: ['error', 'always'],
-    'react/destructuring-assignment': 'off'
-    'react/sort-comp': 'off'
-  }
+    'import/no-extraneous-dependencies': 'off',
+    'react/jsx-filename-extension': 0,
+    'react/jsx-indent': ['error', 4],
+    'react/jsx-indent-props': ['error', 4],
+    indent: ['error', 2, { ignoredNodes: ['JSXElement *'], SwitchCase: 1 }],
+  },
 };

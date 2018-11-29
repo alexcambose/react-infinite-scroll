@@ -1,0 +1,72 @@
+@import 'font-imports.scss';
+@import url('https://fonts.googleapis.com/css?family=Rosario');
+@import './skeleton/skeleton.scss';
+@import '{}/wysiwyg.css';
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  padding: 10px 0 0 0;
+  margin: 0;
+  font-family: 'Rosario';
+  background: #2e4052;
+  color: #ffffff;
+}
+.box300 {
+  width: 300px;
+  height: 300px;
+  overflow: scroll;
+}
+.nav {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  li:not(.align-end) {
+    display: inline-block;
+
+    a {
+      transition: 0.3s;
+      display: block;
+      padding: 10px 20px;
+      text-decoration: none;
+      font-size: 1.1em;
+      &.active {
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+      &:hover {
+        background-color: #ffc857;
+        color: rgba(0, 0, 0, 1);
+      }
+    }
+  }
+  li.align-end {
+    margin-left: auto;
+  }
+}
+.card-large {
+  padding: 20px;
+  border: 1px solid gray;
+  margin-top: 10px;
+  font-size: 1.1em;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+.loading {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.box {
+  height: 400px;
+  overflow-y: scroll;
+}
+code {
+  background-color: #263544;
+}
+pre > code {
+}
