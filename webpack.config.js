@@ -12,7 +12,7 @@ module.exports = {
     vendor: ['react', 'react-dom', 'react-router', 'react-router-dom', 'redux', 'react-redux'],
   },
   output: {
-    path: path.resolve(__dirname, './dist/'),
+    path: path.resolve(__dirname, './'),
     filename: `[${inDev ? 'name' : 'hash'}].bundle.js`,
   },
   mode: inDev ? 'development' : 'production',
